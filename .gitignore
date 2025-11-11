@@ -1,0 +1,65 @@
+# === Node.js / JavaScript ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.pnpm-debug.log*
+
+# === Build output ===
+dist/
+build/
+.out/
+.next/
+.cache/
+coverage/
+
+# === Environment variables ===
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# === System files ===
+.DS_Store
+Thumbs.db
+
+# === IDE / Editor ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === Logs ===
+logs/
+*.log
+*.log.*
+log.txt
+
+# === Test artifacts ===
+jest-cache/
+jest-html-reporters-*
+test-output/
+coverage-final.json
+
+# === Temporary files ===
+tmp/
+temp/
+*.tmp
+*.swp
+
+# === Misc ===
+*.pid
+*.seed
+*.tgz
+
+# === Optional: if using TypeScript ===
+*.tsbuildinfo
+
+# === Optional: Vite / Webpack / React ===
+.vite/
+.vitepress/
+.eslintcache
+stylelintcache
