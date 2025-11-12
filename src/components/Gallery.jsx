@@ -183,7 +183,7 @@ const Gallery = () => {
                         {activeIndexTab === index ?
                             <>
                                 <div className="p-4 border-b-[1px] border-white">
-                                    <button title={`Dwonload zip ${index}`} aria-label="Download file" className="flex cursor-pointer" onClick={() => downloadZip(item.files, item.title)}>
+                                    <button title={`Download pictures-${item.title}.zip`} aria-label="Download file" className="flex cursor-pointer" onClick={() => downloadZip(item.files, item.title)}>
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              viewBox="0 0 24 24"
                                              fill="none"
