@@ -12,12 +12,6 @@ jobs:
       - name: Checkout repozytorium
         uses: actions/checkout@v3
 
-      - name: Install dependencies and build
-        run: npm ci && npm run build
-
-      - name: Debug: list dist
-        run: ls -la ./dist/
-
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
