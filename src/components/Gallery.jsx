@@ -107,7 +107,7 @@ const Gallery = () => {
         });
     };
 
-    const downloadZip = async (files) => {
+    const downloadZip = async (files, title) => {
         console.log("Download zip: ", files);
 
         const zip = new JSZip();
@@ -124,7 +124,7 @@ const Gallery = () => {
         }
 
         const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, "pictures.zip");
+        saveAs(content, `pictures-${title}.zip`);
     };
 
     return (
@@ -182,11 +182,26 @@ const Gallery = () => {
                         </h2>
                         {activeIndexTab === index ?
                             <>
-                                <div className="p-4 border-b-[1px] border-white"><button onClick={() => downloadZip(item.files)}>Download zip</button></div>
+                                <div className="p-4 border-b-[1px] border-white">
+                                    <button title={`Dwonload zip ${index}`} aria-label="Download file" className="flex cursor-pointer" onClick={() => downloadZip(item.files, item.title)}>
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             viewBox="0 0 24 24"
+                                             fill="none"
+                                             stroke="currentColor"
+                                             className="w-6 h-6 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                                             strokeWidth="1.5"
+                                             strokeLinecap="round"
+                                             strokeLinejoin="round">
+                                            <path d="M12 3v12.75" />
+                                            <path d="M8.25 12.75L12 16.5l3.75-3.75" />
+                                            <path d="M4.5 21h15" />
+                                        </svg> Download zip
+                                    </button>
+                                </div>
                                 <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
                                     {item.files.map((url, index) => (
                                         <li className="bg-black p-1" key={index}>
-                                            <a className="relative block w-full h-full" target="_blank" href={url}
+                                        <a className="relative block w-full h-full" target="_blank" href={url}
                                                onClick={(e) => openPopup(e, url)}>
                                                 <LazyLoaded src={url} alt={`Photo ${index}`}/>
                                                 {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}
