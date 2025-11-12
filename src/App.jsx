@@ -23,9 +23,9 @@ const Counter = () => {
 };
 
 const Stoper = () => {
-  const [stoper, setStoper] = useState(0);
-  const [stopCounter, setStopCounter] = useState(true);
-  const stoperFun = useRef(null);
+    const [stoper, setStoper] = useState(0);
+    const [stopCounter, setStopCounter] = useState(true);
+    const stoperFun = useRef(null);
     const start = () => {
         if(stopCounter) {
             setStopCounter(false);
@@ -34,17 +34,17 @@ const Stoper = () => {
             }, 100);
         }
     };
-      const pause = () => {
-          if(!stopCounter) {
-              setStopCounter(true);
-              clearInterval(stoperFun.current);
-          }
-      };
+    const pause = () => {
+        if(!stopCounter) {
+            setStopCounter(true);
+            clearInterval(stoperFun.current);
+        }
+    };
 
-      const stop = () => {
-          pause();
-          setStoper(0);
-      };
+    const stop = () => {
+        pause();
+        setStoper(0);
+    };
 
 
     return (
@@ -78,10 +78,10 @@ function App() {
 
     const countEven = (arr) => {
         let j= 0;
-      for(let i = 0; i < arr.length; i++) {
-          if(isEven(arr[i])) j++;
-      }
-      return j;
+        for(let i = 0; i < arr.length; i++) {
+            if(isEven(arr[i])) j++;
+        }
+        return j;
     };
 
     const countOdd = (arr) => {
@@ -98,7 +98,7 @@ function App() {
     }
 
     const reverseStringHandle = (e) => {
-      setReversVal(e.target.value);
+        setReversVal(e.target.value);
     };
 
     const palindoromeStringHandle = (e) => {
@@ -107,12 +107,12 @@ function App() {
 
     const [lotteryNumbersV, setLotteryNumbersV] = useState([]);
     const lotteryNumbers = () => {
-      const countNumbers = 3;
-      const lotteryArray = [];
-      for(let i = 0; i < countNumbers; i++) {
-          const randomNumber = Math.floor(Math.random() * 10);
-          lotteryArray.push(randomNumber);
-      }
+        const countNumbers = 3;
+        const lotteryArray = [];
+        for(let i = 0; i < countNumbers; i++) {
+            const randomNumber = Math.floor(Math.random() * 10);
+            lotteryArray.push(randomNumber);
+        }
         setLotteryNumbersV(lotteryArray);
     };
 
@@ -125,34 +125,33 @@ function App() {
 
     return (
         <>
-            <div>Test</div>
             <Gallery />
             {/*<RadioPlayer streamUrl="https://rs102-krk-cyfronet.rmfstream.pl/rmf_top_5_pop" />*/}
 
-            <h3>Stoper</h3>
-            <Stoper />
+            {/*<h3>Stoper</h3>*/}
+            {/*<Stoper />*/}
 
-            <h3>Counter</h3>
-            <Counter />
+            {/*<h3>Counter</h3>*/}
+            {/*<Counter />*/}
 
-              <p>Random number: {numberLottery} this is {isEven(numberLottery) ? 'even' : 'odd'} number</p>
+            {/*<p>Random number: {numberLottery} this is {isEven(numberLottery) ? 'even' : 'odd'} number</p>*/}
 
-              <h3>Revers string:</h3>
-              <input type="text" onChange={reverseStringHandle} value={reverseVal}/>
-              <p>{reverseString(reverseVal)}</p>
-              <h3>Check if a string is a palindrome:</h3>
-              <input type="text" value={palindoromeVal} onChange={palindoromeStringHandle} />
-              <p>{ palindoromeVal === reverseString(palindoromeVal) ? 'String is palindorome' : 'String is not palindrome' }</p>
+            {/*<h3>Revers string:</h3>*/}
+            {/*<input type="text" onChange={reverseStringHandle} value={reverseVal}/>*/}
+            {/*<p>{reverseString(reverseVal)}</p>*/}
+            {/*<h3>Check if a string is a palindrome:</h3>*/}
+            {/*<input type="text" value={palindoromeVal} onChange={palindoromeStringHandle} />*/}
+            {/*<p>{ palindoromeVal === reverseString(palindoromeVal) ? 'String is palindorome' : 'String is not palindrome' }</p>*/}
 
-              <h3>Lottery Numbers</h3>
-              <button onClick={lotteryNumbers}>Click</button>
-              <ul>{lotteryNumbersV.map((n, index) => {
-                  return <li key={index}>{n}</li>;
-              })}</ul>
-              <p>Count Even: {countEven(lotteryNumbersV)}</p>
-              <p>Count Odd: {countOdd(lotteryNumbersV)}</p>
-          </>
-      );
+            {/*<h3>Lottery Numbers</h3>*/}
+            {/*<button onClick={lotteryNumbers}>Click</button>*/}
+            {/*<ul>{lotteryNumbersV.map((n, index) => {*/}
+            {/*    return <li key={index}>{n}</li>;*/}
+            {/*})}</ul>*/}
+            {/*<p>Count Even: {countEven(lotteryNumbersV)}</p>*/}
+            {/*<p>Count Odd: {countOdd(lotteryNumbersV)}</p>*/}
+        </>
+    );
 }
 
 export default App
