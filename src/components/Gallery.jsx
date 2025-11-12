@@ -6,7 +6,8 @@ const LazyLoaded = ({src,alt}) => {
 
     return (
         <>
-            <img loading="lazy" onLoad={() => setLoaded(true)} src={src} alt={alt}
+            {/*loading="lazy"*/}
+            <img onLoad={() => setLoaded(true)} src={src} alt={alt}
                  className={`w-full h-full object-cover aspect-square transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
             />
             {!loaded ? <span
