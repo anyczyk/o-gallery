@@ -27,7 +27,7 @@ const Gallery = () => {
     const refFullImage = useRef();
 
     useEffect(() => {
-        fetch('./src/assets//o-gallery.json')
+        fetch('./o-gallery.json')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('error uploads');
