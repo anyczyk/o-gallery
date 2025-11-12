@@ -18,5 +18,5 @@ jobs:
           server: ftp.s1518.webd.pro
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./
+          local-dir: ./dist
           server-dir: /public_html/o-gallery.semdesign.net/
