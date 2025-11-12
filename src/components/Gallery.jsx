@@ -1,5 +1,7 @@
 import {useState, useRef, useEffect} from 'react';
-import {data} from "autoprefixer";
+// import {data} from "autoprefixer";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
 
 const LazyLoaded = ({src,alt}) => {
     const [loaded, setLoaded] = useState(false);
@@ -105,6 +107,26 @@ const Gallery = () => {
         });
     };
 
+    const downloadZip = async (files) => {
+        console.log("Download zip: ", files);
+
+        const zip = new JSZip();
+
+        for (const url of files) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const filename = url.split("/").pop();
+                zip.file(filename, blob);
+            } catch (err) {
+                console.error("Error download:", url, err);
+            }
+        }
+
+        const content = await zip.generateAsync({ type: "blob" });
+        saveAs(content, "pictures.zip");
+    };
+
     return (
         <>
             {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2">
@@ -159,16 +181,20 @@ const Gallery = () => {
                             </svg>
                         </h2>
                         {activeIndexTab === index ?
-                            <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
-                                {item.files.map((url, index) => (
-                                    <li className="bg-black p-1" key={index}>
-                                        <a className="relative block w-full h-full" target="_blank" href={url} onClick={(e) => openPopup(e,url)}>
-                                            <LazyLoaded src={url} alt={`Photo ${index}`} />
-                                            {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul> : ''}
+                            <>
+                                <div className="p-4 border-b-[1px] border-white"><button onClick={() => downloadZip(item.files)}>Download zip</button></div>
+                                <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
+                                    {item.files.map((url, index) => (
+                                        <li className="bg-black p-1" key={index}>
+                                            <a className="relative block w-full h-full" target="_blank" href={url}
+                                               onClick={(e) => openPopup(e, url)}>
+                                                <LazyLoaded src={url} alt={`Photo ${index}`}/>
+                                                {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </> : ''}
                     </div>
                 ))}
             </>}
