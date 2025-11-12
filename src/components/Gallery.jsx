@@ -9,7 +9,7 @@ const LazyLoaded = ({src,alt}) => {
     return (
         <>
             <img loading="lazy" onLoad={() => setLoaded(true)} src={src} alt={alt}
-                 className={`w-full h-full object-cover aspect-square transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+                 className={`rounded-lg w-full h-full object-cover aspect-square transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
             />
             {!loaded ? <span
                 className="inline-block w-10 h-10 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -162,11 +162,29 @@ const Gallery = () => {
                     </svg>
                 </button>
             </div> : <>
-                <h1 className="p-4 text-3xl font-bold text-blue-600">Gallery</h1>
+                <h1 className="flex mb-2 p-4 text-3xl font-bold text-white bg-lime-500">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         className="mr-3 w-10 h-10 text-gray-700 hover:text-gray-900 transition-colors duration-200"
+                         strokeWidth="1.5"
+                         strokeLinecap="round"
+                         strokeLinejoin="round">
+
+                        <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/>
+
+                        <path d="M3 18l5-6 4 5 6-8 4 6"/>
+
+                        <circle cx="17" cy="7" r="2"/>
+                    </svg>
+                    oGallery
+                </h1>
                 {photos.map((item, index) => (
 
-                    <div key={index} className={`mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-100'}`}>
-                        <h2 tabIndex="0" role="button" className="p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
+                    <div key={index} className={`mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
+                        <h2 tabIndex="0" role="button"
+                            className="p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
                             onClick={() => handleClick(index)}
                             onKeyDown={(e) => {
                                 if (e.key === "Enter" || e.key === " ") {
@@ -181,13 +199,13 @@ const Gallery = () => {
                         </h2>
                         {activeIndexTab === index ?
                             <>
-                                <div className="p-4 border-b-[1px] border-white">
-                                    <button title={`Download pictures-${item.title}.zip`} aria-label="Download file" className="flex cursor-pointer" onClick={() => downloadZip(item.files, item.title)}>
+                                <div className="p-4 flex border-b-[1px] border-white">
+                                    <button title={`Download pictures-${item.title}.zip`} aria-label="Download file" className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg" onClick={() => downloadZip(item.files, item.title)}>
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              viewBox="0 0 24 24"
                                              fill="none"
                                              stroke="currentColor"
-                                             className="w-6 h-6 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                                             className="w-6 h-6 text-white"
                                              strokeWidth="1.5"
                                              strokeLinecap="round"
                                              strokeLinejoin="round">
@@ -199,8 +217,8 @@ const Gallery = () => {
                                 </div>
                                 <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
                                     {item.files.map((url, index) => (
-                                        <li className="bg-black p-1" key={index}>
-                                        <a className="relative block w-full h-full" target="_blank" href={url}
+                                        <li className="bg-black rounded-lg shadow-[0_0_3px_black] transition-transform duration-200 hover:scale-105" key={index}>
+                                            <a className="relative block w-full h-full" target="_blank" href={url}
                                                onClick={(e) => openPopup(e, url)}>
                                                 <LazyLoaded src={url} alt={`Photo ${index}`}/>
                                                 {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}

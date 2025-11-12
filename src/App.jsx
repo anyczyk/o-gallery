@@ -126,6 +126,11 @@ function App() {
     return (
         <>
             <Gallery />
+
+            <footer className="mt-auto flex p-4 text-white bg-lime-500">
+                <p>&copy; semDesign / oGallery</p>
+            </footer>
+
             {/*<RadioPlayer streamUrl="https://rs102-krk-cyfronet.rmfstream.pl/rmf_top_5_pop" />*/}
 
             {/*<h3>Stoper</h3>*/}
