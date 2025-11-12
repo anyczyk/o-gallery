@@ -192,15 +192,19 @@ const Gallery = () => {
                                 }
                             }}
                         >{item.title} ({photos[index].files.length})
-                            <svg className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-black [filter:drop-shadow(0px_0px_1px_white)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`} fill="none"
-                                 stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <svg
+                                className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-black [filter:drop-shadow(0px_0px_1px_white)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`}
+                                fill="none"
+                                stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 9l7 7 7-7"/>
                             </svg>
                         </h2>
                         {activeIndexTab === index ?
                             <>
                                 <div className="p-4 flex border-b-[1px] border-white">
-                                    <button title={`Download pictures-${item.title}.zip`} aria-label="Download file" className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg" onClick={() => downloadZip(item.files, item.title)}>
+                                    <button title={`Download pictures-${item.title}.zip`} aria-label="Download file"
+                                            className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg"
+                                            onClick={() => downloadZip(item.files, item.title)}>
                                         <svg xmlns="http://www.w3.org/2000/svg"
                                              viewBox="0 0 24 24"
                                              fill="none"
@@ -209,15 +213,17 @@ const Gallery = () => {
                                              strokeWidth="1.5"
                                              strokeLinecap="round"
                                              strokeLinejoin="round">
-                                            <path d="M12 3v12.75" />
-                                            <path d="M8.25 12.75L12 16.5l3.75-3.75" />
-                                            <path d="M4.5 21h15" />
-                                        </svg> Download zip
+                                            <path d="M12 3v12.75"/>
+                                            <path d="M8.25 12.75L12 16.5l3.75-3.75"/>
+                                            <path d="M4.5 21h15"/>
+                                        </svg>
+                                        Download zip
                                     </button>
                                 </div>
                                 <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
                                     {item.files.map((url, index) => (
-                                        <li className="bg-black rounded-lg shadow-[0_0_3px_black] transition-transform duration-200 hover:scale-105" key={index}>
+                                        <li className="bg-black rounded-lg shadow-[0_0_3px_black] transition-transform duration-200 hover:scale-105"
+                                            key={index}>
                                             <a className="relative block w-full h-full" target="_blank" href={url}
                                                onClick={(e) => openPopup(e, url)}>
                                                 <LazyLoaded src={url} alt={`Photo ${index}`}/>
@@ -229,6 +235,9 @@ const Gallery = () => {
                             </> : ''}
                     </div>
                 ))}
+                <footer className="mt-auto flex p-4 text-white bg-lime-500">
+                    <p>&copy; semDesign / oGallery</p>
+                </footer>
             </>}
         </>
     );
