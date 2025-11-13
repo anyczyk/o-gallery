@@ -1,26 +1,10 @@
 import {useState, useRef, useEffect} from 'react';
-// import {data} from "autoprefixer";
-import JSZip from "jszip";
-import { saveAs } from "file-saver";
+import { useSwipeNavigation } from "../hooks/useSwipeNavigation";
+import { downloadZip } from "../utils/downloadZip";
+import {LazyLoaded} from './LazyLoaded';
+import {IcoPrev, IcoNext, IcoClose, IcoLogo, IcoLogout, IcoChevronDown, IcoDownload} from '../icons/iconsSVG';
 
-const LazyLoaded = ({src,alt}) => {
-    const [loaded, setLoaded] = useState(false);
-
-    return (
-        <>
-            <img loading="lazy" onLoad={() => setLoaded(true)} src={src} alt={alt}
-                 className={`rounded-lg w-full h-full object-cover aspect-square transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-            />
-            {!loaded ? <span
-                className="inline-block w-10 h-10 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                role="status"
-                aria-label="Loading"
-            ></span> : ''}
-        </>
-    );
-};
-
-const Gallery = () => {
+const Gallery = ({setPassCorrect, deleteCookie}) => {
     const [photos, setPhotos] = useState([]);
     const [activeIndexTab, setActiveIndexTab] = useState(null);
     const [activeIndexPhoto, setActiveIndexPhoto] = useState(null);
@@ -40,8 +24,19 @@ const Gallery = () => {
                 return response.json();
             })
             .then(data => {
-                console.log('Data JSON:', data);
                 setPhotos(data);
+                const cleanHash = window.location.hash.substring(1);
+                data.map((item,index) => {
+                    const hashFormat = cleanHash.replace("%20", " ");
+                    if(item.title === hashFormat) {
+                        setTimeout(() => {
+                            const el = refMainListWrap.current.querySelector(`.o-sector:nth-child(${index+1}) .o-title`);
+                            handleClickOpenTab(el, index);
+                        },0);
+                    }
+                });
+
+
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -77,18 +72,32 @@ const Gallery = () => {
         });
     }, [activeFilePopup]);
 
-    const handleClick = (e,index) => {
-        if(activeIndexTab === index) {
+    const handleClickOpenTab = (e, index) => {
+        const isSame = activeIndexTab === index;
+
+        if (isSame) {
             setActiveIndexTab(null);
+            window.location.hash = '';
         } else {
             setActiveIndexTab(index);
         }
-        setTimeout(() => {
-            e.target.scrollIntoView({
-                behavior: "auto",
-                block: "start"
-            });
-        },0);
+
+        if (e && !isSame) {
+            setTimeout(() => {
+                if (e && e.target && typeof e.target === 'object') {
+                    e.target.scrollIntoView({
+                        behavior: "auto",
+                        block: "start"
+                    });
+                    window.location.hash = `#${photos[index].title}`;
+                } else if (e && e.nodeType === 1) {
+                    e.scrollIntoView({
+                        behavior: "auto",
+                        block: "start"
+                    });
+                }
+            }, 0);
+        }
     };
 
     const openPopup = (event,url) => {
@@ -117,24 +126,12 @@ const Gallery = () => {
         });
     };
 
-    const downloadZip = async (files, title) => {
-        console.log("Download zip: ", files);
+    const swipeHandlers = useSwipeNavigation(chooseImage);
 
-        const zip = new JSZip();
-
-        for (const url of files) {
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const filename = url.split("/").pop();
-                zip.file(filename, blob);
-            } catch (err) {
-                console.error("Error download:", url, err);
-            }
-        }
-
-        const content = await zip.generateAsync({ type: "blob" });
-        saveAs(content, `pictures-${title}.zip`);
+    const logout = () => {
+        deleteCookie('password');
+        setPassCorrect(false);
+        window.location.hash = '';
     };
 
     const closePopup = () => {
@@ -151,99 +148,10 @@ const Gallery = () => {
         }, 0);
     };
 
-    // Touch Start
-    const startX = useRef(null);
-    const isDown = useRef(false);
-    const isMultiTouch = useRef(false);
-    const activeTouches = useRef(new Set()); // przechowuje identyfikatory palców
-
-    const handleStart = (x) => {
-        startX.current = x;
-        isDown.current = true;
-    };
-
-    const handleEnd = (x) => {
-        if (startX.current === null) return;
-
-        const diffX = x - startX.current;
-        startX.current = null;
-        isDown.current = false;
-
-        if (isMultiTouch.current) {
-            isMultiTouch.current = false; // reset blokady
-            return; // nie odpalamy prev/next
-        }
-
-        if (Math.abs(diffX) > 50) {
-            chooseImage(diffX < 0 ? "next" : "prev");
-        }
-    };
-
-    const onTouchStart = (e) => {
-        // aktualizuj zbiór aktywnych palców
-        for (const t of e.touches) activeTouches.current.add(t.identifier);
-
-        if (e.touches.length > 1) {
-            isMultiTouch.current = true; // już teraz blokujemy swipe
-            return;
-        }
-        handleStart(e.touches[0].clientX);
-    };
-
-    const onTouchMove = (e) => {
-        // jeśli kiedykolwiek >= 2 palce, blokujemy
-        if (e.touches.length > 1) {
-            isMultiTouch.current = true;
-        }
-    };
-
-    const onTouchEnd = (e) => {
-        // usuń zakończone palce ze zbioru
-        for (const t of e.changedTouches) activeTouches.current.delete(t.identifier);
-
-        // jeśli kiedykolwiek był multitouch → blokujemy
-        if (isMultiTouch.current) {
-            // gdy wszystkie palce zeszły, zresetuj stan
-            if (activeTouches.current.size === 0) {
-                isMultiTouch.current = false;
-                startX.current = null;
-                isDown.current = false;
-            }
-            return; // nic nie robimy z prev/next
-        }
-
-        // zwykły swipe jednym palcem
-        if (e.changedTouches.length === 1) {
-            handleEnd(e.changedTouches[0].clientX);
-        }
-    };
-
-    const onTouchCancel = () => {
-        // przeglądarka przerwała gest (np. z powodu systemowego zoomu)
-        activeTouches.current.clear();
-        isMultiTouch.current = false;
-        startX.current = null;
-        isDown.current = false;
-    };
-
-    const onMouseDown = (e) => handleStart(e.clientX);
-    const onMouseUp = (e) => {
-        if (!isDown.current) return;
-        handleEnd(e.clientX);
-    };
-
-
-
     return (
         <>
             {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2"
-                                    onTouchStart={onTouchStart}
-                                    onTouchMove={onTouchMove}
-                                    onTouchEnd={onTouchEnd}
-                                    onTouchCancel={onTouchCancel}
-                                    onMouseDown={onMouseDown}
-                                    onMouseUp={onMouseUp}
-                                    // style={{ touchAction: "none", userSelect: "none" }}
+                                    {...swipeHandlers}
             >
                 <img ref={refFullImage}
                      alet={`image`}
@@ -254,74 +162,40 @@ const Gallery = () => {
                     />
 
 
-
-                {isPrevExist ? <button onClick={() => chooseImage('prev')}
-                                       className="text-center p-2 absolute left-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer">
-                    <svg className="inline-block w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]"
-                         fill="none"
-                         stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 5l-7 7 7 7"/>
-                    </svg>
-                </button> : ''}
-
-                {isNextExist ? <button onClick={() => chooseImage('next')}
-                                       className="text-center p-2 absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer">
-                    <svg className="inline-block w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]"
-                         fill="none"
-                         stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
-                    </svg>
-                </button> : ''}
+                {isPrevExist ? <button onClick={() => chooseImage('prev')} className="text-center p-2 absolute left-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer"><IcoPrev /></button> : ''}
+                {isNextExist ? <button onClick={() => chooseImage('next')} className="text-center p-2 absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer"><IcoNext /></button> : ''}
 
                 {/*Close button*/}
                 <button className="absolute right-2 top-2 cursor-pointer p-2"
                         onClick={() => closePopup()}>
-                    <svg className="w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]" fill="none"
-                         stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6"/>
-                    </svg>
+                    <IcoClose />
                 </button>
 
                 <div className="absolute bottom-4 text-center left-0 right-0 z-3 text-white font-bold [filter:drop-shadow(0px_0px_1px_black)]">{activeIndexPhoto} / {activeCountPhotos}</div>
 
             </div> : <>
-                <h1 className="flex mb-2 p-4 text-3xl font-bold text-white bg-lime-500">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                         viewBox="0 0 24 24"
-                         fill="none"
-                         stroke="currentColor"
-                         className="mr-3 w-10 h-10 text-gray-700 hover:text-gray-900 transition-colors duration-200"
-                         strokeWidth="1.5"
-                         strokeLinecap="round"
-                         strokeLinejoin="round">
-
-                        <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/>
-
-                        <path d="M3 18l5-6 4 5 6-8 4 6"/>
-
-                        <circle cx="17" cy="7" r="2"/>
-                    </svg>
-                    oGallery
-                </h1>
+                <header className="flex mb-2 p-4 text-white bg-lime-500">
+                    <IcoLogo />
+                    <h1 className="text-3xl font-bold">oGallery</h1>
+                    <button className="ml-auto cursor-pointer flex items-center" onClick={logout}>
+                        <IcoLogout />
+                        Logout
+                    </button>
+                </header>
                 <div ref={refMainListWrap}>
                     {photos.map((item, index) => (
-
-                        <div key={index} className={`mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
+                        <div key={index}
+                             className={`o-sector mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
                             <h2 tabIndex="0" role="button"
-                                className="p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
-                                onClick={(e) => handleClick(e,index)}
+                                className="o-title p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
+                                onClick={(e) => handleClickOpenTab(e,index)}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
-                                        handleClick(index);
+                                        handleClickOpenTab(index);
                                     }
                                 }}
                             >{item.title} ({photos[index].files.length})
-                                <svg
-                                    className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-black [filter:drop-shadow(0px_0px_1px_white)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`}
-                                    fill="none"
-                                    stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 9l7 7 7-7"/>
-                                </svg>
+                                <IcoChevronDown activeIndexTab={activeIndexTab} index={index} />
                             </h2>
                             {activeIndexTab === index ?
                                 <>
@@ -329,18 +203,7 @@ const Gallery = () => {
                                         <button title={`Download pictures-${item.title}.zip`} aria-label="Download file"
                                                 className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg"
                                                 onClick={() => downloadZip(item.files, item.title)}>
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                 viewBox="0 0 24 24"
-                                                 fill="none"
-                                                 stroke="currentColor"
-                                                 className="w-6 h-6 text-white"
-                                                 strokeWidth="1.5"
-                                                 strokeLinecap="round"
-                                                 strokeLinejoin="round">
-                                                <path d="M12 3v12.75"/>
-                                                <path d="M8.25 12.75L12 16.5l3.75-3.75"/>
-                                                <path d="M4.5 21h15"/>
-                                            </svg>
+                                            <IcoDownload />
                                             Download zip
                                         </button>
                                     </div>
@@ -351,7 +214,6 @@ const Gallery = () => {
                                                 <a className="relative block w-full h-full focus:outline-[3px] focus:outline-[#ff0000] focus:outline-dotted focus-visible:outline-[3px] focus-visible:outline-[#ff0000] focus-visible:outline-dotted focus:rounded-lg focus-visible:rounded-lg" target="_blank" href={url}
                                                    onClick={(e) => openPopup(e, url)}>
                                                     <LazyLoaded src={url} alt={`Photo ${index}`}/>
-                                                    {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}
                                                 </a>
                                             </li>
                                         ))}
@@ -367,5 +229,4 @@ const Gallery = () => {
         </>
     );
 };
-
 export default Gallery;
