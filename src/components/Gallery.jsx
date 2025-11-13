@@ -155,6 +155,7 @@ const Gallery = () => {
     const startX = useRef(null);
     const isDown = useRef(false);
     const isMultiTouch = useRef(false);
+    const activeTouches = useRef(new Set()); // przechowuje identyfikatory palców
 
     const handleStart = (x) => {
         startX.current = x;
@@ -163,14 +164,14 @@ const Gallery = () => {
 
     const handleEnd = (x) => {
         if (startX.current === null) return;
+
         const diffX = x - startX.current;
         startX.current = null;
         isDown.current = false;
 
-        // jeśli był multitouch → ignorujemy
         if (isMultiTouch.current) {
-            isMultiTouch.current = false;
-            return;
+            isMultiTouch.current = false; // reset blokady
+            return; // nie odpalamy prev/next
         }
 
         if (Math.abs(diffX) > 50) {
@@ -178,44 +179,71 @@ const Gallery = () => {
         }
     };
 
-    const handleTouchStart = (e) => {
+    const onTouchStart = (e) => {
+        // aktualizuj zbiór aktywnych palców
+        for (const t of e.touches) activeTouches.current.add(t.identifier);
+
         if (e.touches.length > 1) {
-            isMultiTouch.current = true;
+            isMultiTouch.current = true; // już teraz blokujemy swipe
             return;
         }
         handleStart(e.touches[0].clientX);
     };
 
-    const handleTouchMove = (e) => {
+    const onTouchMove = (e) => {
+        // jeśli kiedykolwiek >= 2 palce, blokujemy
         if (e.touches.length > 1) {
             isMultiTouch.current = true;
         }
     };
 
-    const handleTouchEnd = (e) => {
+    const onTouchEnd = (e) => {
+        // usuń zakończone palce ze zbioru
+        for (const t of e.changedTouches) activeTouches.current.delete(t.identifier);
+
+        // jeśli kiedykolwiek był multitouch → blokujemy
         if (isMultiTouch.current) {
-            isMultiTouch.current = false;
-            return;
+            // gdy wszystkie palce zeszły, zresetuj stan
+            if (activeTouches.current.size === 0) {
+                isMultiTouch.current = false;
+                startX.current = null;
+                isDown.current = false;
+            }
+            return; // nic nie robimy z prev/next
         }
-        if (e.changedTouches.length > 1) return;
-        handleEnd(e.changedTouches[0].clientX);
+
+        // zwykły swipe jednym palcem
+        if (e.changedTouches.length === 1) {
+            handleEnd(e.changedTouches[0].clientX);
+        }
     };
 
-    const handleMouseDown = (e) => handleStart(e.clientX);
-    const handleMouseUp = (e) => {
+    const onTouchCancel = () => {
+        // przeglądarka przerwała gest (np. z powodu systemowego zoomu)
+        activeTouches.current.clear();
+        isMultiTouch.current = false;
+        startX.current = null;
+        isDown.current = false;
+    };
+
+    const onMouseDown = (e) => handleStart(e.clientX);
+    const onMouseUp = (e) => {
         if (!isDown.current) return;
         handleEnd(e.clientX);
     };
 
 
+
     return (
         <>
             {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2"
-                                    onTouchStart={handleTouchStart}
-                                    onTouchMove={handleTouchMove}
-                                    onTouchEnd={handleTouchEnd}
-                                    onMouseDown={handleMouseDown}
-                                    onMouseUp={handleMouseUp}
+                                    onTouchStart={onTouchStart}
+                                    onTouchMove={onTouchMove}
+                                    onTouchEnd={onTouchEnd}
+                                    onTouchCancel={onTouchCancel}
+                                    onMouseDown={onMouseDown}
+                                    onMouseUp={onMouseUp}
+                                    style={{ touchAction: "none", userSelect: "none" }}
             >
                 <img ref={refFullImage}
                      alet={`image`}
