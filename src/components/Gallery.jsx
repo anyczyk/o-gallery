@@ -23,10 +23,13 @@ const LazyLoaded = ({src,alt}) => {
 const Gallery = () => {
     const [photos, setPhotos] = useState([]);
     const [activeIndexTab, setActiveIndexTab] = useState(null);
+    const [activeIndexPhoto, setActiveIndexPhoto] = useState(null);
     const [activeFilePopup, setActiveFilePopup] = useState(null);
+    const [activeCountPhotos, setActiveCountPhotos] = useState(null);
     const [isPrevExist, setIsPrevExist] = useState(true);
     const [isNextExist, setIsNextExist] = useState(true);
     const refFullImage = useRef();
+    const refMainListWrap = useRef();
 
     useEffect(() => {
         fetch('./o-gallery.json')
@@ -49,8 +52,10 @@ const Gallery = () => {
         photos.map((item,index) => {
             if(activeIndexTab === index) {
                 // console.log("active index: ", activeIndexTab);
+                setActiveCountPhotos(item.files.length);
                 item.files.map((file,index) => {
                     if(file === activeFilePopup) {
+                        setActiveIndexPhoto(index+1);
                         if(item.files[index-1]) {
                             // console.log("exist prev");
                             setIsPrevExist(true);
@@ -72,12 +77,18 @@ const Gallery = () => {
         });
     }, [activeFilePopup]);
 
-    const handleClick = (index) => {
+    const handleClick = (e,index) => {
         if(activeIndexTab === index) {
             setActiveIndexTab(null);
         } else {
             setActiveIndexTab(index);
         }
+        setTimeout(() => {
+            e.target.scrollIntoView({
+                behavior: "auto",
+                block: "start"
+            });
+        },0);
     };
 
     const openPopup = (event,url) => {
@@ -126,13 +137,79 @@ const Gallery = () => {
         saveAs(content, `pictures-${title}.zip`);
     };
 
+    const closePopup = () => {
+        setActiveFilePopup(null);
+        console.log(photos[activeIndexTab]);
+        setTimeout(() => {
+            console.log(refMainListWrap.current);
+            refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`).focus();
+            refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`).scrollIntoView({
+                behavior: "auto",
+                block: "start"
+            });
+            window.scrollBy(0, -12);
+        }, 0);
+    };
+
+    // Touch Start
+    const startX = useRef(null);
+    const isDown = useRef(false);
+
+    const handleTouchStart = (e) => {
+        startX.current = e.touches[0].clientX;
+    };
+
+    const handleTouchEnd = (e) => {
+        const endX = e.changedTouches[0].clientX;
+        const diffX = endX - startX.current;
+
+        if (Math.abs(diffX) > 50) {
+            if (diffX < 0) {
+                console.log("next");
+            } else {
+                console.log("prev");
+            }
+        }
+    };
+
+    const handleMouseDown = (e) => {
+        isDown.current = true;
+        startX.current = e.clientX;
+    };
+
+    const handleMouseUp = (e) => {
+        if (!isDown.current) return;
+        isDown.current = false;
+
+        const endX = e.clientX;
+        const diffX = endX - startX.current;
+
+        if (Math.abs(diffX) > 50) {
+            if (diffX < 0) {
+                console.log("next");
+                chooseImage('next');
+            } else {
+                console.log("prev");
+                chooseImage('prev');
+            }
+        }
+    };
+
+
     return (
         <>
             {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2">
                 <img ref={refFullImage}
                      alet={`image`}
                      className="max-w-full h-auto max-h-[100vh] mt-auto mb-auto ml-auto mr-auto transition-background-image duration-300"
-                     src={activeFilePopup}/>
+                     src={activeFilePopup}
+
+                     draggable="false"
+                     onTouchStart={handleTouchStart}
+                     onTouchEnd={handleTouchEnd}
+                     onMouseDown={handleMouseDown}
+                     onMouseUp={handleMouseUp}
+                    />
 
 
 
@@ -154,13 +231,17 @@ const Gallery = () => {
                     </svg>
                 </button> : ''}
 
+                {/*Close button*/}
                 <button className="absolute right-2 top-2 cursor-pointer p-2"
-                        onClick={() => setActiveFilePopup(null)}>
+                        onClick={() => closePopup()}>
                     <svg className="w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]" fill="none"
                          stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6"/>
                     </svg>
                 </button>
+
+                <div className="absolute bottom-4 text-center left-0 right-0 z-3 text-white font-bold [filter:drop-shadow(0px_0px_1px_black)]">{activeIndexPhoto} / {activeCountPhotos}</div>
+
             </div> : <>
                 <h1 className="flex mb-2 p-4 text-3xl font-bold text-white bg-lime-500">
                     <svg xmlns="http://www.w3.org/2000/svg"
@@ -180,61 +261,63 @@ const Gallery = () => {
                     </svg>
                     oGallery
                 </h1>
-                {photos.map((item, index) => (
+                <div ref={refMainListWrap}>
+                    {photos.map((item, index) => (
 
-                    <div key={index} className={`mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
-                        <h2 tabIndex="0" role="button"
-                            className="p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
-                            onClick={() => handleClick(index)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter" || e.key === " ") {
-                                    handleClick(index);
-                                }
-                            }}
-                        >{item.title} ({photos[index].files.length})
-                            <svg
-                                className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-black [filter:drop-shadow(0px_0px_1px_white)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`}
-                                fill="none"
-                                stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 9l7 7 7-7"/>
-                            </svg>
-                        </h2>
-                        {activeIndexTab === index ?
-                            <>
-                                <div className="p-4 flex border-b-[1px] border-white">
-                                    <button title={`Download pictures-${item.title}.zip`} aria-label="Download file"
-                                            className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg"
-                                            onClick={() => downloadZip(item.files, item.title)}>
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             viewBox="0 0 24 24"
-                                             fill="none"
-                                             stroke="currentColor"
-                                             className="w-6 h-6 text-white"
-                                             strokeWidth="1.5"
-                                             strokeLinecap="round"
-                                             strokeLinejoin="round">
-                                            <path d="M12 3v12.75"/>
-                                            <path d="M8.25 12.75L12 16.5l3.75-3.75"/>
-                                            <path d="M4.5 21h15"/>
-                                        </svg>
-                                        Download zip
-                                    </button>
-                                </div>
-                                <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
-                                    {item.files.map((url, index) => (
-                                        <li className="bg-black rounded-lg shadow-[0_0_3px_black] transition-transform duration-200 hover:scale-105"
-                                            key={index}>
-                                            <a className="relative block w-full h-full" target="_blank" href={url}
-                                               onClick={(e) => openPopup(e, url)}>
-                                                <LazyLoaded src={url} alt={`Photo ${index}`}/>
-                                                {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}
-                                            </a>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </> : ''}
-                    </div>
-                ))}
+                        <div key={index} className={`mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
+                            <h2 tabIndex="0" role="button"
+                                className="p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
+                                onClick={(e) => handleClick(e,index)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                        handleClick(index);
+                                    }
+                                }}
+                            >{item.title} ({photos[index].files.length})
+                                <svg
+                                    className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-black [filter:drop-shadow(0px_0px_1px_white)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`}
+                                    fill="none"
+                                    stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 9l7 7 7-7"/>
+                                </svg>
+                            </h2>
+                            {activeIndexTab === index ?
+                                <>
+                                    <div className="p-4 flex border-b-[1px] border-white">
+                                        <button title={`Download pictures-${item.title}.zip`} aria-label="Download file"
+                                                className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg"
+                                                onClick={() => downloadZip(item.files, item.title)}>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="currentColor"
+                                                 className="w-6 h-6 text-white"
+                                                 strokeWidth="1.5"
+                                                 strokeLinecap="round"
+                                                 strokeLinejoin="round">
+                                                <path d="M12 3v12.75"/>
+                                                <path d="M8.25 12.75L12 16.5l3.75-3.75"/>
+                                                <path d="M4.5 21h15"/>
+                                            </svg>
+                                            Download zip
+                                        </button>
+                                    </div>
+                                    <ul className="p-4 grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-8 gap-4">
+                                        {item.files.map((url, index) => (
+                                            <li className="o-item-photo bg-black rounded-lg shadow-[0_0_3px_black] transition-transform duration-200 hover:scale-105"
+                                                key={index}>
+                                                <a className="relative block w-full h-full focus:outline-[3px] focus:outline-[#ff0000] focus:outline-dotted focus-visible:outline-[3px] focus-visible:outline-[#ff0000] focus-visible:outline-dotted focus:rounded-lg focus-visible:rounded-lg" target="_blank" href={url}
+                                                   onClick={(e) => openPopup(e, url)}>
+                                                    <LazyLoaded src={url} alt={`Photo ${index}`}/>
+                                                    {/*<img loading="lazy" className="w-full h-full object-cover aspect-square" src={url} alt={`Photo ${index}`}/>*/}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </> : ''}
+                        </div>
+                    ))}
+                </div>
                 <footer className="mt-auto flex p-4 text-white bg-lime-500">
                     <p>&copy; semDesign / oGallery</p>
                 </footer>
