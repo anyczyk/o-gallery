@@ -154,28 +154,48 @@ const Gallery = () => {
     // Touch Start
     const startX = useRef(null);
     const isDown = useRef(false);
+    const isMultiTouch = useRef(false);
+
     const handleStart = (x) => {
         startX.current = x;
         isDown.current = true;
     };
+
     const handleEnd = (x) => {
         if (startX.current === null) return;
         const diffX = x - startX.current;
         startX.current = null;
         isDown.current = false;
 
+        // jeśli był multitouch → ignorujemy
+        if (isMultiTouch.current) {
+            isMultiTouch.current = false;
+            return;
+        }
+
         if (Math.abs(diffX) > 50) {
-            chooseImage(diffX < 0 ? 'next' : 'prev');
+            chooseImage(diffX < 0 ? "next" : "prev");
         }
     };
+
     const handleTouchStart = (e) => {
-        if (e.touches.length > 1) return;
+        if (e.touches.length > 1) {
+            isMultiTouch.current = true; // zapamiętaj, że to pinch
+            return;
+        }
         handleStart(e.touches[0].clientX);
     };
+
     const handleTouchEnd = (e) => {
+        // jeśli multitouch → reset i wyjście
+        if (isMultiTouch.current) {
+            isMultiTouch.current = false;
+            return;
+        }
         if (e.changedTouches.length > 1) return;
         handleEnd(e.changedTouches[0].clientX);
     };
+
     const handleMouseDown = (e) => handleStart(e.clientX);
     const handleMouseUp = (e) => {
         if (!isDown.current) return;
