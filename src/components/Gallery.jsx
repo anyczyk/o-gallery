@@ -180,14 +180,19 @@ const Gallery = () => {
 
     const handleTouchStart = (e) => {
         if (e.touches.length > 1) {
-            isMultiTouch.current = true; // zapamiętaj, że to pinch
+            isMultiTouch.current = true;
             return;
         }
         handleStart(e.touches[0].clientX);
     };
 
+    const handleTouchMove = (e) => {
+        if (e.touches.length > 1) {
+            isMultiTouch.current = true;
+        }
+    };
+
     const handleTouchEnd = (e) => {
-        // jeśli multitouch → reset i wyjście
         if (isMultiTouch.current) {
             isMultiTouch.current = false;
             return;
@@ -202,13 +207,16 @@ const Gallery = () => {
         handleEnd(e.clientX);
     };
 
+
     return (
         <>
             {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2"
                                     onTouchStart={handleTouchStart}
+                                    onTouchMove={handleTouchMove}
                                     onTouchEnd={handleTouchEnd}
                                     onMouseDown={handleMouseDown}
-                                    onMouseUp={handleMouseUp}>
+                                    onMouseUp={handleMouseUp}
+            >
                 <img ref={refFullImage}
                      alet={`image`}
                      className="max-w-full h-auto max-h-[100vh] mt-auto mb-auto ml-auto mr-auto transition-background-image duration-300"
