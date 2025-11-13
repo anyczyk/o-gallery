@@ -243,7 +243,7 @@ const Gallery = () => {
                                     onTouchCancel={onTouchCancel}
                                     onMouseDown={onMouseDown}
                                     onMouseUp={onMouseUp}
-                                    style={{ touchAction: "none", userSelect: "none" }}
+                                    // style={{ touchAction: "none", userSelect: "none" }}
             >
                 <img ref={refFullImage}
                      alet={`image`}
