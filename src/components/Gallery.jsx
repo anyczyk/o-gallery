@@ -154,49 +154,27 @@ const Gallery = () => {
     // Touch Start
     const startX = useRef(null);
     const isDown = useRef(false);
-
-    const handleTouchStart = (e) => {
-        startX.current = e.touches[0].clientX;
-    };
-
-    const handleTouchEnd = (e) => {
-        const endX = e.changedTouches[0].clientX;
-        const diffX = endX - startX.current;
-
-        if (Math.abs(diffX) > 50) {
-            if (diffX < 0) {
-                console.log("next");
-                chooseImage('next');
-            } else {
-                console.log("prev");
-                chooseImage('prev');
-            }
-        }
-    };
-
-    const handleMouseDown = (e) => {
+    const handleStart = (x) => {
+        startX.current = x;
         isDown.current = true;
-        startX.current = e.clientX;
     };
-
-    const handleMouseUp = (e) => {
-        if (!isDown.current) return;
+    const handleEnd = (x) => {
+        if (startX.current === null) return;
+        const diffX = x - startX.current;
+        startX.current = null;
         isDown.current = false;
 
-        const endX = e.clientX;
-        const diffX = endX - startX.current;
-
         if (Math.abs(diffX) > 50) {
-            if (diffX < 0) {
-                console.log("next");
-                chooseImage('next');
-            } else {
-                console.log("prev");
-                chooseImage('prev');
-            }
+            chooseImage(diffX < 0 ? 'next' : 'prev');
         }
     };
-
+    const handleTouchStart = (e) => handleStart(e.touches[0].clientX);
+    const handleTouchEnd = (e) => handleEnd(e.changedTouches[0].clientX);
+    const handleMouseDown = (e) => handleStart(e.clientX);
+    const handleMouseUp = (e) => {
+        if (!isDown.current) return;
+        handleEnd(e.clientX);
+    };
 
     return (
         <>
