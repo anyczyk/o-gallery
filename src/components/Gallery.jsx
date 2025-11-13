@@ -168,8 +168,14 @@ const Gallery = () => {
             chooseImage(diffX < 0 ? 'next' : 'prev');
         }
     };
-    const handleTouchStart = (e) => handleStart(e.touches[0].clientX);
-    const handleTouchEnd = (e) => handleEnd(e.changedTouches[0].clientX);
+    const handleTouchStart = (e) => {
+        if (e.touches.length > 1) return;
+        handleStart(e.touches[0].clientX);
+    };
+    const handleTouchEnd = (e) => {
+        if (e.changedTouches.length > 1) return;
+        handleEnd(e.changedTouches[0].clientX);
+    };
     const handleMouseDown = (e) => handleStart(e.clientX);
     const handleMouseUp = (e) => {
         if (!isDown.current) return;
