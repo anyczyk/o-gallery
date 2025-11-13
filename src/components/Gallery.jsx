@@ -166,8 +166,10 @@ const Gallery = () => {
         if (Math.abs(diffX) > 50) {
             if (diffX < 0) {
                 console.log("next");
+                chooseImage('next');
             } else {
                 console.log("prev");
+                chooseImage('prev');
             }
         }
     };
