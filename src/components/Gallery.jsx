@@ -198,17 +198,17 @@ const Gallery = () => {
 
     return (
         <>
-            {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2">
+            {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2"
+                                    onTouchStart={handleTouchStart}
+                                    onTouchEnd={handleTouchEnd}
+                                    onMouseDown={handleMouseDown}
+                                    onMouseUp={handleMouseUp}>
                 <img ref={refFullImage}
                      alet={`image`}
                      className="max-w-full h-auto max-h-[100vh] mt-auto mb-auto ml-auto mr-auto transition-background-image duration-300"
                      src={activeFilePopup}
 
                      draggable="false"
-                     onTouchStart={handleTouchStart}
-                     onTouchEnd={handleTouchEnd}
-                     onMouseDown={handleMouseDown}
-                     onMouseUp={handleMouseUp}
                     />
 
 
