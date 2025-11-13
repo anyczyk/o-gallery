@@ -136,15 +136,15 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
 
     const closePopup = () => {
         setActiveFilePopup(null);
-        console.log(photos[activeIndexTab]);
+        // console.log(photos[activeIndexTab]);
         setTimeout(() => {
-            console.log(refMainListWrap.current);
+            // console.log(refMainListWrap.current);
             refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`).focus();
             refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`).scrollIntoView({
                 behavior: "auto",
                 block: "start"
             });
-            window.scrollBy(0, -12);
+            window.scrollBy(0, -100);
         }, 0);
     };
 
@@ -182,7 +182,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                         Logout
                     </button>
                 </header>
-                <div ref={refMainListWrap}>
+                <div className="container mx-auto px-2" ref={refMainListWrap}>
                     {photos.map((item, index) => (
                         <div key={index}
                              className={`o-sector mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
@@ -222,8 +222,8 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                         </div>
                     ))}
                 </div>
-                <footer className="mt-auto flex p-4 text-white bg-lime-500">
-                    <p>&copy; semDesign / oGallery</p>
+                <footer className="mt-auto p-4 text-white bg-lime-500">
+                    <p className="text-center">&copy; semDesign / oGallery</p>
                 </footer>
             </>}
         </>
