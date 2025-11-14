@@ -40,7 +40,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                                 console.log('exist photo:', picture);
                                 setTimeout(()=>{
                                     console.log(document.querySelector(`[href="${picture}"]`));
-                                    document.querySelector(`[href="${picture}"]`).click();
+                                    document.querySelector(`[href="${picture}"]`)?.click();
                                 },);
                             }
                         },0);
