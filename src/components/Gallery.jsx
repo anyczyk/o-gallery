@@ -27,11 +27,22 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                 setPhotos(data);
                 const cleanHash = window.location.hash.substring(1);
                 data.map((item,index) => {
-                    const hashFormat = cleanHash.replace("%20", " ");
+                    // const hashFormatFirstLevel = cleanHash
+
+                    const hashFormatFirstLevel = cleanHash.split("=")[0];
+                    const hashFormat = hashFormatFirstLevel.replace(/%20/g, " ");
                     if(item.title === hashFormat) {
                         setTimeout(() => {
                             const el = refMainListWrap.current.querySelector(`.o-sector:nth-child(${index+1}) .o-title`);
                             handleClickOpenTab(el, index);
+                            const picture = cleanHash.split("=")[1];
+                            if(picture) {
+                                console.log('exist photo:', picture);
+                                setTimeout(()=>{
+                                    console.log(document.querySelector(`[href="${picture}"]`));
+                                    document.querySelector(`[href="${picture}"]`).click();
+                                },);
+                            }
                         },0);
                     }
                 });
@@ -104,6 +115,8 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
         event.preventDefault();
         // alert(url);
         setActiveFilePopup(url);
+
+        window.location.hash = `#${photos[activeIndexTab].title}=${url}`;
     };
 
     const chooseImage = (direction) => {
@@ -118,6 +131,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                     if(item.files[d]) {
                         // console.log("next file exist: ", item.files[d]);
                         setActiveFilePopup(item.files[d]);
+                        window.location.hash = `#${photos[activeIndexTab].title}=${photos[activeIndexTab].files[(direction === 'prev' ? (index-1) : (index+1))]}`;
                     } else {
                         console.log("next file no exist");
                     }
@@ -144,6 +158,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                 behavior: "auto",
                 block: "start"
             });
+            window.location.hash = `#${photos[activeIndexTab].title}`;
             window.scrollBy(0, -100);
         }, 0);
     };
@@ -191,7 +206,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                                 onClick={(e) => handleClickOpenTab(e,index)}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
-                                        handleClickOpenTab(index);
+                                        handleClickOpenTab(e,index);
                                     }
                                 }}
                             >{item.title} ({photos[index].files.length})
