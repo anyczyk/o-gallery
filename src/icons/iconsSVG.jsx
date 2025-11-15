@@ -1,6 +1,6 @@
 export const IcoPrev = () => {
     return (
-        <svg className="inline-block w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]"
+        <svg className="inline-block w-10 h-10 text-light [filter:drop-shadow(0px_0px_1px_black)]"
              fill="none"
              stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 5l-7 7 7 7"/>
@@ -10,7 +10,7 @@ export const IcoPrev = () => {
 
 export const IcoNext = () => {
     return (
-        <svg className="inline-block w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]"
+        <svg className="inline-block w-10 h-10 text-light [filter:drop-shadow(0px_0px_1px_black)]"
              fill="none"
              stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
@@ -20,7 +20,7 @@ export const IcoNext = () => {
 
 export const IcoClose = () => {
     return (
-        <svg className="w-10 h-10 text-white [filter:drop-shadow(0px_0px_1px_black)]" fill="none"
+        <svg className="w-10 h-10 text-light [filter:drop-shadow(0px_0px_1px_black)]" fill="none"
              stroke="currentColor" strokeWidth="4" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M6 18L18 6"/>
         </svg>
@@ -33,7 +33,7 @@ export const IcoLogo = () => {
              viewBox="0 0 24 24"
              fill="none"
              stroke="currentColor"
-             className="mr-3 w-10 h-10 text-gray-700 hover:text-gray-900 transition-colors duration-200"
+             className="mr-3 w-10 h-10 text-neutral-50 transition-colors duration-200"
              strokeWidth="1.5"
              strokeLinecap="round"
              strokeLinejoin="round">
@@ -61,7 +61,7 @@ export const IcoLogout = () => {
 export const IcoChevronDown = ({activeIndexTab,index}) => {
     return (
         <svg
-            className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-black [filter:drop-shadow(0px_0px_1px_white)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`}
+            className={`inline-block ml-auto mt-auto mb-auto w-5 h-5 text-light [filter:drop-shadow(0px_0px_1px_light)] transition-rotate duration-300 ${activeIndexTab === index ? 'rotate-180' : 'rotate-0'}`}
             fill="none"
             stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 9l7 7 7-7"/>
@@ -75,7 +75,7 @@ export const IcoDownload = () => {
              viewBox="0 0 24 24"
              fill="none"
              stroke="currentColor"
-             className="w-6 h-6 text-white"
+             className="w-6 h-6 text-light"
              strokeWidth="1.5"
              strokeLinecap="round"
              strokeLinejoin="round">

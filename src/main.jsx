@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 
 const rootElement = document.getElementById('root');
-rootElement.classList.add('flex','flex-col', 'min-h-screen');
+rootElement.classList.add('flex','flex-col', 'min-h-screen', 'bg-neutral-100');
 createRoot(rootElement).render(
     <StrictMode>
         <App />

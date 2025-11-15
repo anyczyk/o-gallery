@@ -3,6 +3,7 @@ import { useSwipeNavigation } from "../hooks/useSwipeNavigation";
 import { downloadZip } from "../utils/downloadZip";
 import {LazyLoaded} from './LazyLoaded';
 import {IcoPrev, IcoNext, IcoClose, IcoLogo, IcoLogout, IcoChevronDown, IcoDownload} from '../icons/iconsSVG';
+// import {searchString} from '../utils/searchString';
 
 const Gallery = ({setPassCorrect, deleteCookie}) => {
     const [photos, setPhotos] = useState([]);
@@ -16,6 +17,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
     const refMainListWrap = useRef();
 
     useEffect(() => {
+        // searchString('11');
         fetch('./o-gallery.json')
             .then(response => {
                 if (!response.ok) {
@@ -54,6 +56,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
             });
     }, []);
 
+
     useEffect(() => {
         photos.map((item,index) => {
             if(activeIndexTab === index) {
@@ -83,10 +86,63 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
         });
     }, [activeFilePopup]);
 
+    // useEffect(() => {
+    //
+    //     const ClosePopupDef = () => {
+    //         if(activeFilePopup) {
+    //             closePopup();
+    //         }
+    //     };
+    //     const handleKeyDown = (e) => {
+    //         if(e.key === 'Escape') {
+    //             ClosePopupDef();
+    //         }
+    //     };
+    //
+    //     window.addEventListener("keydown", handleKeyDown);
+    //     window.addEventListener("popstate", ClosePopupDef);
+    //
+    //     return ()=> {
+    //         window.removeEventListener("keydown", handleKeyDown);
+    //         window.removeEventListener("popstate", ClosePopupDef);
+    //     }
+    // }, [activeIndexPhoto, activeFilePopup]);
+
+    useEffect(() => {
+        const ClosePopupDef = () => {
+            if (activeFilePopup) {
+                closePopup();
+            }
+        };
+
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") {
+                ClosePopupDef();
+            }
+        };
+
+        const handlePopState = (event) => {
+            // reaguj tylko jeśli w historii jest wpis oznaczony jako popup
+            if (event.state?.popup) {
+                ClosePopupDef();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("popstate", handlePopState);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("popstate", handlePopState);
+        };
+    }, [activeIndexPhoto, activeFilePopup]);
+
+
     const handleClickOpenTab = (e, index) => {
         const isSame = activeIndexTab === index;
 
         if (isSame) {
+            console.log("klikasz w ten sam tab czyli zamykasz");
             setActiveIndexTab(null);
             window.location.hash = '';
         } else {
@@ -114,6 +170,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
     const openPopup = (event,url) => {
         event.preventDefault();
         // alert(url);
+        history.pushState({ popup: true }, "");
         setActiveFilePopup(url);
 
         window.location.hash = `#${photos[activeIndexTab].title}=${url}`;
@@ -131,7 +188,8 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                     if(item.files[d]) {
                         // console.log("next file exist: ", item.files[d]);
                         setActiveFilePopup(item.files[d]);
-                        window.location.hash = `#${photos[activeIndexTab].title}=${photos[activeIndexTab].files[(direction === 'prev' ? (index-1) : (index+1))]}`;
+                        history.replaceState({ popup: true }, '', `#${photos[activeIndexTab].title}=${photos[activeIndexTab].files[(direction === 'prev' ? (index-1) : (index+1))]}`);
+                        // window.location.hash = `#${photos[activeIndexTab].title}=${photos[activeIndexTab].files[(direction === 'prev' ? (index-1) : (index+1))]}`;
                     } else {
                         console.log("next file no exist");
                     }
@@ -153,11 +211,15 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
         // console.log(photos[activeIndexTab]);
         setTimeout(() => {
             // console.log(refMainListWrap.current);
-            refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`).focus();
-            refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`).scrollIntoView({
-                behavior: "auto",
-                block: "start"
-            });
+            // console.log("activeIndexPhoto:", activeIndexPhoto);
+            if(activeIndexPhoto) {
+                const activeImageLink = refMainListWrap.current.querySelector(`.o-item-photo:nth-child(${activeIndexPhoto}) a`);
+                activeImageLink?.focus();
+                activeImageLink?.scrollIntoView({
+                    behavior: "auto",
+                    block: "start"
+                });
+            }
             window.location.hash = `#${photos[activeIndexTab].title}`;
             window.scrollBy(0, -100);
         }, 0);
@@ -169,29 +231,38 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                                     {...swipeHandlers}
             >
                 <img ref={refFullImage}
-                     alet={`image`}
+                     alt={`image`}
                      className="max-w-full h-auto max-h-[100vh] mt-auto mb-auto ml-auto mr-auto transition-background-image duration-300"
                      src={activeFilePopup}
 
                      draggable="false"
-                    />
+                />
 
 
-                {isPrevExist ? <button onClick={() => chooseImage('prev')} className="text-center p-2 absolute left-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer"><IcoPrev /></button> : ''}
-                {isNextExist ? <button onClick={() => chooseImage('next')} className="text-center p-2 absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer"><IcoNext /></button> : ''}
+                {isPrevExist ? <button onClick={() => chooseImage('prev')}
+                                       className="text-center p-2 absolute left-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer">
+                    <IcoPrev/></button> : ''}
+                {isNextExist ? <button onClick={() => chooseImage('next')}
+                                       className="text-center p-2 absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent cursor-pointer">
+                    <IcoNext/></button> : ''}
 
                 {/*Close button*/}
                 <button className="absolute right-2 top-2 cursor-pointer p-2"
                         onClick={() => closePopup()}>
-                    <IcoClose />
+                    <IcoClose/>
                 </button>
 
-                <div className="absolute bottom-4 text-center left-0 right-0 z-3 text-white font-bold [filter:drop-shadow(0px_0px_1px_black)]">{activeIndexPhoto} / {activeCountPhotos}</div>
+                <div
+                    className="absolute bottom-4 text-center left-0 right-0 z-3 text-light font-bold [filter:drop-shadow(0px_0px_1px_black)]">{activeIndexPhoto} / {activeCountPhotos}</div>
+                <div
+                    className="absolute top-4 left-3 z-3 text-light text-sm [filter:drop-shadow(0px_0px_1px_black)]">{photos[activeIndexTab].title}</div>
 
             </div> : <>
-                <header className="flex mb-2 p-4 text-white bg-lime-500">
-                    <IcoLogo />
-                    <h1 className="text-3xl font-bold">oGallery</h1>
+                <header className="flex mb-2 p-4 text-neutral-50 bg-bar">
+                    <a className="flex" href="/">
+                        <IcoLogo/>
+                        <h1 className="text-3xl font-bold">oGallery</h1>
+                    </a>
                     <button className="ml-auto cursor-pointer flex items-center" onClick={logout}>
                         <IcoLogout />
                         Logout
@@ -200,9 +271,9 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                 <div className="container mx-auto px-2" ref={refMainListWrap}>
                     {photos.map((item, index) => (
                         <div key={index}
-                             className={`o-sector mb-2 ${activeIndexTab === index ? 'bg-green-100' : 'bg-yellow-300'}`}>
+                             className={`o-sector mb-2 ${activeIndexTab === index ? 'bg-tab-active' : 'bg-tab'}`}>
                             <h2 tabIndex="0" role="button"
-                                className="o-title p-4 flex mb-0 text-1xl font-bold text-blue-600 cursor-pointer border-b-[1px] border-white"
+                                className={`o-title p-4 flex mb-0 text-1xl font-bold cursor-pointer border-b-[1px] border-light ${activeIndexTab === index ? 'text-bar' : 'text-light'}`}
                                 onClick={(e) => handleClickOpenTab(e,index)}
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" || e.key === " ") {
@@ -214,9 +285,9 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                             </h2>
                             {activeIndexTab === index ?
                                 <>
-                                    <div className="p-4 flex border-b-[1px] border-white">
+                                    <div className="p-4 flex border-b-[1px] border-light">
                                         <button title={`Download pictures-${item.title}.zip`} aria-label="Download file"
-                                                className="py-2 px-4 ml-auto flex cursor-pointer text-white bg-amber-500 hover:bg-orange-300 transition-bg duration-200 rounded-lg"
+                                                className="py-2 px-4 ml-auto flex cursor-pointer text-light bg-warning transition-bg duration-200 rounded-lg"
                                                 onClick={() => downloadZip(item.files, item.title)}>
                                             <IcoDownload />
                                             Download zip
@@ -226,7 +297,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                                         {item.files.map((url, index) => (
                                             <li className="o-item-photo bg-black rounded-lg shadow-[0_0_3px_black] transition-transform duration-200 hover:scale-105"
                                                 key={index}>
-                                                <a className="relative block w-full h-full focus:outline-[3px] focus:outline-[#ff0000] focus:outline-dotted focus-visible:outline-[3px] focus-visible:outline-[#ff0000] focus-visible:outline-dotted focus:rounded-lg focus-visible:rounded-lg" target="_blank" href={url}
+                                                <a className="relative block w-full h-full focus:outline-[5px] focus:outline-selection focus:outline-solid focus-visible:outline-[5px] focus-visible:outline-selection focus-visible:outline-solid focus:rounded-lg focus-visible:rounded-lg" target="_blank" href={url}
                                                    onClick={(e) => openPopup(e, url)}>
                                                     <LazyLoaded src={url} alt={`Photo ${index}`}/>
                                                 </a>
@@ -237,7 +308,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                         </div>
                     ))}
                 </div>
-                <footer className="mt-auto p-4 text-white bg-lime-500">
+                <footer className="mt-auto p-4 text-neutral-50 bg-bar">
                     <p className="text-center">&copy; semDesign / oGallery</p>
                 </footer>
             </>}

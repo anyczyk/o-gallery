@@ -53,7 +53,7 @@ function App() {
                 <div className="m-auto">
                     <input onKeyDown={handleKeyDownPassword} value={password} onChange={handlePassword} placeholder="Password"
                            className="bg-white text-black p-4" type="password"/>
-                    <button onClick={checkPassword} className="p-4 bg-amber-300">Submit</button>
+                    <button onClick={checkPassword} className="p-4 bg-warning">Submit</button>
                     {passInfo ? <p className="text-red-500 mt-2">Wrong password, try again</p> : <p className="pt-2">Enter password</p>}
                 </div>
             </div>}
