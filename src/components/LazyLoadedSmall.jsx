@@ -1,6 +1,6 @@
 import {useState} from 'react';
 
-export const LazyLoaded = ({src,alt}) => {
+export const LazyLoadedSmall = ({src,alt}) => {
     const [loaded, setLoaded] = useState(false);
 
     return (

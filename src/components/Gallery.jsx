@@ -1,7 +1,8 @@
 import {useState, useRef, useEffect} from 'react';
 import { useSwipeNavigation } from "../hooks/useSwipeNavigation";
 import { downloadZip } from "../utils/downloadZip";
-import {LazyLoaded} from './LazyLoaded';
+import {LazyLoadedSmall} from './LazyLoadedSmall.jsx';
+import {LazyLoadedBig} from './LazyLoadedBig.jsx';
 import {IcoPrev, IcoNext, IcoClose, IcoLogo, IcoLogout, IcoChevronDown, IcoDownload} from '../icons/iconsSVG';
 // import {searchString} from '../utils/searchString';
 
@@ -230,13 +231,15 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
             {activeFilePopup ? <div className="flex bg-black fixed inset-0 z-2"
                                     {...swipeHandlers}
             >
-                <img ref={refFullImage}
-                     alt={`image`}
-                     className="max-w-full h-auto max-h-[100vh] mt-auto mb-auto ml-auto mr-auto transition-background-image duration-300"
-                     src={activeFilePopup}
+                {/*<img ref={refFullImage}*/}
+                {/*     alt={`image`}*/}
+                {/*     className="max-w-full h-auto max-h-[100vh] mt-auto mb-auto ml-auto mr-auto transition-background-image duration-300"*/}
+                {/*     src={activeFilePopup}*/}
 
-                     draggable="false"
-                />
+                {/*     draggable="false"*/}
+                {/*/>*/}
+
+                <LazyLoadedBig activeFilePopup={activeFilePopup} alt={'Image'} ref={refFullImage} />
 
 
                 {isPrevExist ? <button onClick={() => chooseImage('prev')}
@@ -299,7 +302,7 @@ const Gallery = ({setPassCorrect, deleteCookie}) => {
                                                 key={index}>
                                                 <a className="relative block w-full h-full focus:outline-[5px] focus:outline-selection focus:outline-solid focus-visible:outline-[5px] focus-visible:outline-selection focus-visible:outline-solid focus:rounded-lg focus-visible:rounded-lg" target="_blank" href={url}
                                                    onClick={(e) => openPopup(e, url)}>
-                                                    <LazyLoaded src={url} alt={`Photo ${index}`}/>
+                                                    <LazyLoadedSmall src={url.replace('/photos/','/photos-small/')} alt={`Photo ${index}`}/>
                                                 </a>
                                             </li>
                                         ))}
