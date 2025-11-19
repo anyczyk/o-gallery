@@ -13,7 +13,7 @@ export const LazyLoadedBig = forwardRef(({ activeFilePopup, alt }, ref) => {
 
         const timer = setTimeout(() => {
             setShowSpinner(true);
-        }, 350);
+        }, 380);
 
         return () => clearTimeout(timer);
     }, [activeFilePopup]);
